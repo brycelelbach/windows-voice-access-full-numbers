@@ -1,0 +1,30 @@
+name: Windows release build
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Rebuild and reinstall with Windows PowerShell
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $built = .\build.ps1
+          $first = .\install.ps1
+          $second = .\install.ps1
+          $release = Get-Content -Raw release.json | ConvertFrom-Json
+          foreach ($file in @($built.FullName, $first.Executable, $second.Executable)) {
+            if ((Get-FileHash -LiteralPath $file).Hash -ne $release.sha256) { throw "Release mismatch at $file" }
+          }
+          $shell = New-Object -ComObject WScript.Shell
+          if ([IO.Path]::GetFileName($second.Shortcut) -ne 'Full Numbers.lnk') { throw 'Incorrect voice launch name.' }
+          $product = (Get-Item -LiteralPath $second.Executable).VersionInfo
+          if ($product.ProductName -ne 'Windows Voice Access Full Numbers' -or $product.ProductVersion -ne $release.version) {
+            throw 'Incorrect executable product name or version.'
+          }
+          if ($shell.CreateShortcut($second.Shortcut).TargetPath -ne $second.Executable) { throw 'Incorrect Start shortcut.' }
+          if ((Get-FileHash -LiteralPath $second.License).Hash -ne (Get-FileHash -LiteralPath LICENSE).Hash) {
+            throw 'Installed license differs from the repository license.'
+          }

@@ -1,0 +1,19 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Windows Voice Access Full Numbers browser test</title>
+<style>
+body {font: 18px system-ui; margin: 42px} button {font: inherit; padding: 10px; margin: 12px}
+aside {position: fixed; bottom: 35px; left: 25px; border: 2px solid #369; padding: 20px; background: white}
+</style>
+<h1>Work area</h1>
+<label>Scratch field <input autocomplete="off"></label>
+<button onpointerdown="this.dataset.pressed='1'" onclick="if(this.dataset.pressed) this.textContent='Activated background'">Browser background action</button>
+<button>Another control</button>
+<div style="position:relative;width:300px;margin-top:30px">
+  <button style="width:100%;margin:0" onpointerdown="this.dataset.pressed='1'" onclick="if(this.dataset.pressed) this.textContent='Activated exposed edge'">Partly covered action</button>
+  <span style="position:absolute;left:35%;top:0;bottom:0;width:30%;background:white">Cover</span>
+</div>
+<aside role="alertdialog" aria-modal="true" aria-label="Test notification">
+  <p>Your changes were saved.</p>
+  <button onpointerdown="this.dataset.pressed='1'" onclick="if(this.dataset.pressed) this.textContent='Activated notification'">Browser notification action</button>
+</aside>
